@@ -16,37 +16,39 @@
  * version <versionText>
  */
 
-docletStart __ ("*")* _ (text / tag) (__ ("*")* tag)* __ docletEnd
+start = docletStart __ (text) (__ tag)* docletEnd (.)*
 
-docletStart = "/**"
+docletStart = "/**" ___
 
-docletEnd = "*/"
+docletEnd = _ "*/" ___
 
-_ "whitespace" = [ \t\n\r]*
+_ "whitespace" = [ \t]*
 
-__ "end of line" = [\n\r]+
+__ "start of line" = _"*"_
+
+___ "end of line" = [\n\r]+
 
 tag = tagStart tagName
 
 tagStart = "@"
 
 tagName
- = author _ name __
- / author _ name _ emailAddress __
- / callback _ namepath __
- / constant __
- / constant _ type _ name __
- / copyright _ text __
- / default __
- / default _ value __
- / deprecated _ text __
- / description _ text __
- / enum _ type __
- / file _ text __
- / param _ name __
- / param _ type _ name __
- / param _ type _ name _ text __
- / param _ type _ name _ "-" _ text __
+ = author _ name ___
+ / author _ name _ emailAddress ___
+ / callback _ namepath ___
+ / constant ___
+ / constant _ type _ name ___
+ / copyright _ text 
+ / default ___
+ / default _ value ___
+ / deprecated _ text 
+ / description _ text 
+ / enum _ type ___
+ / file _ text ___
+ / param _ name ___
+ / param _ type _ name ___
+ / param _ type _ name _ text 
+ / param _ type _ name _ "-" _ text 
 
 author = "author"
 callback = "callback"
@@ -59,12 +61,32 @@ enum = "enum"
 file = "file"
 param = "param"
  
-name = [a-zA-Z] [a-zA-Z0-9]*
+name = name:([a-zA-Z] [a-zA-Z0-9]*) {
+	var s = "", i;
+	for (i = 0; i < name.length; i++) {
+		s += name[i];
+	}
+	return s;
+}
 
-type = name
+namepath = name //just for now. 
 
-text = ([a-zA-Z0-9] _)+
+type = "{" name "}"
 
-value = [a-zA-Z0-9]
+text = text:([a-zA-Z0-9] _)+ ___ {
+	var s = "", i;
+	for (i = 0; i < text.length; i++) {
+		s += text[i];
+	}
+	return s;
+}
+
+value = value:([a-zA-Z0-9]*) {
+	var s = "", i;
+	for (i = 0; i < value.length; i++) {
+		s += value[i];
+	}
+	return s;
+}
 
 emailAddress = (value)+ "@" (value)+ "." (value)+
